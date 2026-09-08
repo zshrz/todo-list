@@ -1,0 +1,133 @@
+<html>
+    <head>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+
+    <body>
+        <div class="container">
+        <div class="card">
+            <input type="text" class="form-control mb-2" id="work">
+            <button class="btn btn-success" id="btnadd">افزودن</button>
+            <div id="list"></div>
+            <button id="btnall">همه</button>
+            <button id="btndone">انجام شده</button>
+            <button id="btnundone">انجام نشده </button>
+
+        </div>
+        </div>
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+         <script>
+          let work=document.getElementById("work");
+          let btnadd=document.getElementById("btnadd");
+          let list=document.getElementById("list");
+          let btnall=document.getElementById("btnall");
+          let btndone=document.getElementById("btndone");
+          let btnundone=document.getElementById("btnundone");
+          let currentfilter="all";
+          btnall.onclick=function()
+          {currentfilter="all";
+            showList(currentfilter);}
+          btndone.onclick=function()
+                    {currentfilter="done";
+            showList(currentfilter);}
+
+          btnundone.onclick=function()
+                    {currentfilter="undone";
+            showList(currentfilter);}
+
+          
+          let works=[];
+          let savedworks=localStorage.getItem("works");
+          if(savedworks!==null)
+         {works=JSON.parse(savedworks);}
+
+          btnadd.onclick=function()
+          {
+            if(work.value!=="")
+          {
+                      let twork={};
+            twork.name=work.value;
+            twork.done=false;
+            works.push(twork);
+            saveworks();
+            showList("all");
+            work.value="";
+          }
+            else
+          {alert("لطفا کار جدید وارد کنید");}
+         }
+          function showList(filter)
+          {
+            list.textContent="";
+            for(let i=0;i<works.length;i++)
+          {
+            let show=false;
+            if(filter==="done"&&works[i].done===true){show=true;}
+            else if(filter==="undone"&&works[i].done===false){show=true;}
+            else if(filter==="all"){show=true;}
+            if(show)
+          {let li=document.createElement("li");
+            let span=document.createElement("span");
+            span.textContent=works[i].name;
+            if(works[i].done===true)
+          {span.classList.add("text-decoration-line-through");}
+            li.appendChild(span);
+            let input=document.createElement("input");
+            input.type="checkbox";
+            input.value=i;
+            let rmvbtn=null;
+            input.onclick=function()
+          {if(input.checked===true)
+                      {
+              span.classList.add("text-decoration-line-through");
+              works[i].done=true;
+              saveworks();
+             rmvbtn=document.createElement("button");
+            rmvbtn.textContent="حذف";
+            rmvbtn.className="ms-4";
+            rmvbtn.onclick=function()
+            {
+               let index=Number(input.value);
+              works.splice(index,1);
+              saveworks();
+             showList(currentfilter);
+            }
+            li.appendChild(rmvbtn);
+          }
+        
+          else{
+              span.classList.remove("text-decoration-line-through");
+              works[i].done=false;
+              saveworks();
+            if(rmvbtn!==null){
+              rmvbtn.remove();
+              rmvbtn=null;
+            }
+          }         
+          }
+            li.appendChild(input);
+            let editbtn=document.createElement("button");
+            editbtn.textContent="ویرایش";
+            editbtn.className="ms-3";
+                      editbtn.onclick=function()
+          {let editinput=document.createElement("input");
+            editinput.value=works[i].name;
+            span.replaceWith(editinput);
+            editbtn.textContent="ذخیره";
+            editbtn.onclick=function()
+            {works[i].name=editinput.value;
+              saveworks();
+              showList(currentfilter);
+            }
+          }
+
+            li.appendChild(editbtn);
+
+            list.appendChild(li);}
+          }
+               }
+               function saveworks()
+               {localStorage.setItem("works",JSON.stringify(works));}
+         </script>
+    </body>
+</html>
